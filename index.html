@@ -24,6 +24,9 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    const colors = ['#FFFFFF', '#FF0000', '#FFFF00', '#00FF00', '#FFD700', '#FF4500', '#FF9900', '#FF00FF'];
+    const fireworkSound = new Audio('https://nhacchuong123.com/nhac-chuong/nhac-quoc-te/ProudOfYou-FionaFung.mp3');
+
     const heartPath = (t) => {
       const x = 16 * Math.sin(t) ** 3;
       const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
@@ -78,10 +81,22 @@
     }
 
     canvas.addEventListener('click', (e) => {
-      const colors = ['#FF0000', '#FF69B4', '#FFD700', '#FF4500'];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       createHeartFirework(e.clientX, e.clientY, randomColor);
     });
+
+    function createRandomFireworks() {
+      fireworkSound.play();
+
+      for (let i = 0; i < 4; i++) {
+        const randomX = Math.random() * canvas.width;
+        const randomY = Math.random() * canvas.height;
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        createHeartFirework(randomX, randomY, randomColor);
+      }
+    }
+
+    setInterval(createRandomFireworks, 1000);
 
     animate();
   </script>
