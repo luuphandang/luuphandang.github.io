@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quyển Sách Hình Ảnh</title>
   <style>
-    /* Reset & Base Styles */
     * {
       margin: 0;
       padding: 0;
@@ -14,7 +13,7 @@
 
     body {
       font-family: 'Georgia', serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       height: 100vh;
       display: flex;
       justify-content: center;
@@ -22,12 +21,11 @@
       overflow: hidden;
     }
 
-    /* Desk Environment */
     .desk {
       position: relative;
       width: 100%;
       height: 100%;
-      background: linear-gradient(45deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -42,7 +40,6 @@
         radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
     }
 
-    /* Instructions */
     .instructions {
       position: absolute;
       top: 30px;
@@ -57,13 +54,102 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* Book Container */
     .book-container {
       position: relative;
       width: 700px;
       height: 500px;
       perspective: 1200px;
       transform: rotateX(15deg) rotateY(-5deg);
+    }
+
+    .page.flipping::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.2), transparent);
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .book-container {
+        width: 90vw;
+        height: 60vh;
+        max-width: 400px;
+        max-height: 600px;
+        transform: rotateX(10deg) rotateY(-2deg);
+        perspective: 800px;
+      }
+
+      .instructions {
+        top: 20px;
+        padding: 8px 16px;
+        font-size: 12px;
+        max-width: 90%;
+        text-align: center;
+      }
+
+      .book-title {
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+
+      .book-subtitle {
+        font-size: 12px;
+      }
+
+      .page-number {
+        bottom: 15px;
+        right: 15px;
+        padding: 3px 6px;
+        font-size: 10px;
+      }
+
+      .book-spine {
+        width: 4px;
+      }
+
+      .page {
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .book-container {
+        width: 95vw;
+        height: 55vh;
+        transform: rotateX(5deg) rotateY(-1deg);
+        perspective: 600px;
+      }
+
+      .instructions {
+        top: 15px;
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+
+      .book-title {
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+
+      .book-subtitle {
+        font-size: 11px;
+      }
+
+      .page-number {
+        bottom: 10px;
+        right: 10px;
+        padding: 2px 5px;
+        font-size: 9px;
+      }
+
+      .book-spine {
+        width: 3px;
+      }
     }
 
     .book {
@@ -80,7 +166,6 @@
       height: 100%;
     }
 
-    /* Page Styles */
     .page {
       position: absolute;
       inset: 0;
@@ -115,13 +200,19 @@
       transform-origin: left center;
     }
 
-    /* Page Content */
     .page img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       border-radius: inherit;
       pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      .page img {
+        object-fit: contain;
+        background: #f8f9fa;
+      }
     }
 
     .page-number {
@@ -136,7 +227,6 @@
       font-family: 'Arial', sans-serif;
     }
 
-    /* Cover Styles */
     .cover-front,
     .cover-back {
       background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -189,7 +279,6 @@
       border-radius: 5px 0 0 5px;
     }
 
-    /* Animation States */
     .page.hidden {
       opacity: 0;
       visibility: hidden;
@@ -210,16 +299,83 @@
       transform: rotateY(180deg);
     }
 
-    /* Hidden Controls */
+    .page.left-page.flipping-reverse {
+      transform: rotateY(-180deg) translateZ(10px);
+      z-index: 10;
+    }
+
     .flip-indicator {
       display: none;
+    }
+
+    .audio-controls {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .audio-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .audio-btn:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: scale(1.1);
+    }
+
+    .audio-btn:active {
+      transform: scale(0.95);
+    }
+
+    .audio-btn.pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 768px) {
+      .audio-controls {
+        top: 20px;
+        right: 20px;
+      }
+
+      .audio-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="desk">
     <div class="instructions">
-      📖 Kéo từ phải sang trái để lật trang tiếp theo
+      📖 Kéo từ phải sang trái để lật trang tiếp theo<br>
+      🎵 Nhạc nền đang phát tự động
+    </div>
+    
+    <!-- Audio Controls -->
+    <div class="audio-controls">
+      <button id="playPauseBtn" class="audio-btn">🎵</button>
+      <button id="muteBtn" class="audio-btn">🔊</button>
     </div>
     
     <div class="book-container">
@@ -227,23 +383,17 @@
         <!-- Left Pages -->
         <div class="page-spread">
           <div class="page left-page hidden" id="leftPage-back">
-            <div class="book-title">Cảm ơn!</div>
-            <div class="book-subtitle">Đã xem hết cuốn sách</div>
-            <div class="page-number">Bìa sau</div>
-          </div>
-          
-          <div class="page left-page hidden" id="leftPage-6">
-            <img src="https://picsum.photos/350/500?random=5" alt="Hình ảnh 5">
-            <div class="page-number">6</div>
+            <img src="./images/6.jpg" alt="Hình ảnh 6">
+            <div class="page-number">Hết</div>
           </div>
           
           <div class="page left-page hidden" id="leftPage-4">
-            <img src="https://picsum.photos/350/500?random=3" alt="Hình ảnh 3">
+            <img src="./images/4.jpg" alt="Hình ảnh 4">
             <div class="page-number">4</div>
           </div>
           
           <div class="page left-page hidden" id="leftPage-2">
-            <img src="https://picsum.photos/350/500?random=1" alt="Hình ảnh 1">
+            <img src="./images/2.jpg" alt="Hình ảnh 2">
             <div class="page-number">2</div>
           </div>
         </div>
@@ -251,30 +401,29 @@
         <!-- Right Pages -->
         <div class="page-spread">
           <div class="page right-page visible" id="rightPage-cover">
-            <div class="book-spine"></div>
-            <div class="book-title">Cuốn Sách</div>
-            <div class="book-subtitle">Hình Ảnh Đẹp</div>
-            <div class="page-number">Bìa</div>
+            <img src="./images/1.jpg" alt="Hình ảnh 1">
+            <div class="page-number">Bắt đầu</div>
           </div>
           
           <div class="page right-page hidden" id="rightPage-3">
-            <img src="https://picsum.photos/350/500?random=2" alt="Hình ảnh 2">
+            <img src="./images/3.jpg" alt="Hình ảnh 3">
             <div class="page-number">3</div>
           </div>
           
           <div class="page right-page hidden" id="rightPage-5">
-            <img src="https://picsum.photos/350/500?random=4" alt="Hình ảnh 4">
+            <img src="./images/5.jpg" alt="Hình ảnh 5">
             <div class="page-number">5</div>
-          </div>
-          
-          <div class="page right-page hidden" id="rightPage-7">
-            <img src="https://picsum.photos/350/500?random=6" alt="Hình ảnh 6">
-            <div class="page-number">7</div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Audio Element -->
+  <audio id="backgroundMusic" loop autoplay preload="auto" muted>
+    <source src="noi-nay-co-anh.mp3" type="audio/mpeg">
+    Trình duyệt của bạn không hỗ trợ phát âm thanh.
+  </audio>
 
   <script>
     class BookFlip {
@@ -282,15 +431,15 @@
         this.currentSpread = 0;
         this.totalSpreads = 4;
         this.isAnimating = false;
-        this.dragThreshold = 50;
+        this.dragThreshold = window.innerWidth <= 768 ? 30 : 50;
         this.animationDuration = 400;
+        this.isMobile = window.innerWidth <= 768;
         
         this.pageMapping = {
           0: { left: null, right: 'rightPage-cover' },
           1: { left: 'leftPage-2', right: 'rightPage-3' },
           2: { left: 'leftPage-4', right: 'rightPage-5' },
-          3: { left: 'leftPage-6', right: 'rightPage-7' },
-          4: { left: 'leftPage-back', right: null }
+          3: { left: 'leftPage-back', right: null }
         };
         
         this.init();
@@ -302,17 +451,14 @@
       }
 
       setupEventListeners() {
-        // Mouse events
         document.addEventListener('mousedown', this.handleStart.bind(this));
         document.addEventListener('mousemove', this.handleMove.bind(this));
         document.addEventListener('mouseup', this.handleEnd.bind(this));
         
-        // Touch events
         document.addEventListener('touchstart', this.handleStart.bind(this));
         document.addEventListener('touchmove', this.handleMove.bind(this));
         document.addEventListener('touchend', this.handleEnd.bind(this));
         
-        // Keyboard events
         document.addEventListener('keydown', this.handleKeydown.bind(this));
       }
 
@@ -325,6 +471,10 @@
         
         if (e.type.includes('touch')) {
           e.preventDefault();
+        }
+        
+        if (this.isMobile) {
+          document.body.style.userSelect = 'none';
         }
       }
 
@@ -350,6 +500,10 @@
 
       handleEnd() {
         this.isDragging = false;
+        
+        if (this.isMobile) {
+          document.body.style.userSelect = '';
+        }
       }
 
       handleKeydown(e) {
@@ -400,12 +554,10 @@
       updatePages() {
         const spread = this.pageMapping[this.currentSpread];
         
-        // Hide all pages
         document.querySelectorAll('.page').forEach(page => {
           page.className = page.className.replace(/visible|hidden/, 'hidden');
         });
         
-        // Show current pages
         if (spread.left) {
           const leftPage = document.getElementById(spread.left);
           if (leftPage) {
@@ -422,9 +574,231 @@
       }
     }
 
-    // Initialize
+    // Audio Controller
+    class AudioController {
+      constructor() {
+        this.audio = document.getElementById('backgroundMusic');
+        this.playPauseBtn = document.getElementById('playPauseBtn');
+        this.muteBtn = document.getElementById('muteBtn');
+        this.isPlaying = false;
+        this.isMuted = false;
+        this.autoPlayAttempted = false;
+        
+        this.init();
+      }
+
+      init() {
+        this.setupEventListeners();
+        this.setupAudio();
+        this.attemptAutoPlay();
+      }
+
+      setupAudio() {
+        // Set volume to a reasonable level
+        this.audio.volume = 0.7;
+        
+        // Listen for audio events
+        this.audio.addEventListener('play', () => this.updatePlayButton(true));
+        this.audio.addEventListener('pause', () => this.updatePlayButton(false));
+        this.audio.addEventListener('volumechange', () => this.updateMuteButton());
+        this.audio.addEventListener('canplaythrough', () => this.tryUnmuteOnReady());
+        this.audio.addEventListener('loadeddata', () => this.tryUnmuteOnReady());
+        this.audio.addEventListener('error', (e) => console.error('Audio error:', e));
+      }
+
+      setupEventListeners() {
+        this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+        this.muteBtn.addEventListener('click', () => this.toggleMute());
+        
+        // Try to enable audio on any user interaction
+        this.setupUserInteractionAutoPlay();
+      }
+
+      attemptAutoPlay() {
+        if (this.autoPlayAttempted) return;
+        this.autoPlayAttempted = true;
+        
+        // Try to play audio automatically
+        this.tryAutoPlay();
+      }
+
+      tryAutoPlay() {
+        // Strategy 1: Try muted autoplay first
+        const playPromise = this.audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            this.isPlaying = true;
+            this.updatePlayButton(true);
+            
+            // Try to unmute immediately and then with delays
+            this.tryUnmuteOnReady();
+            setTimeout(() => this.tryUnmute(), 500);
+            setTimeout(() => this.tryUnmute(), 1500);
+            setTimeout(() => this.tryUnmute(), 3000);
+            
+          }).catch(error => {
+            // Strategy 2: Try to play without muted after a delay
+            setTimeout(() => this.tryDirectPlay(), 1000);
+            this.showAutoPlayPrompt();
+          });
+        } else {
+          this.tryDirectPlay();
+        }
+      }
+
+      tryDirectPlay() {
+        this.audio.muted = false;
+        this.audio.play().then(() => {
+          this.isPlaying = true;
+          this.updatePlayButton(true);
+          this.updateMuteButton();
+        }).catch(error => {
+          this.showAutoPlayPrompt();
+        });
+      }
+
+      tryUnmuteOnReady() {
+        // Try to unmute immediately when audio is ready
+        if (this.isPlaying && this.audio.muted) {
+          this.audio.muted = false;
+          this.updateMuteButton();
+        }
+      }
+
+      tryUnmute() {
+        // Try to unmute the audio
+        this.audio.muted = false;
+        this.updateMuteButton();
+        
+        // If unmuting worked, show success
+        if (!this.audio.muted) {
+          this.showAutoPlaySuccess();
+        } else {
+          // If still muted, show prompt for user interaction
+          this.showAutoPlayPrompt();
+        }
+      }
+
+      setupUserInteractionAutoPlay() {
+        // Try to enable audio on any user interaction
+        const enableAudio = () => {
+          if (this.isPlaying && this.audio.muted) {
+            // If audio is playing but muted, try to unmute
+            this.audio.muted = false;
+            this.updateMuteButton();
+            this.showAutoPlaySuccess();
+          } else if (!this.isPlaying) {
+            // If not playing yet, try to start
+            this.audio.muted = false; // Try unmuted play
+            this.audio.play().then(() => {
+              this.isPlaying = true;
+              this.updatePlayButton(true);
+              this.updateMuteButton();
+              this.showAutoPlaySuccess();
+            }).catch(error => {
+              // Silent fail
+            });
+          }
+        };
+
+        // Listen for various user interactions with immediate response
+        document.addEventListener('click', enableAudio, { once: true });
+        document.addEventListener('touchstart', enableAudio, { once: true });
+        document.addEventListener('keydown', enableAudio, { once: true });
+        document.addEventListener('mousemove', enableAudio, { once: true });
+        document.addEventListener('mousedown', enableAudio, { once: true });
+        document.addEventListener('scroll', enableAudio, { once: true });
+      }
+
+      showAutoPlaySuccess() {
+        // Hide any prompts since auto-play worked
+        const prompt = document.querySelector('.auto-play-prompt');
+        if (prompt) {
+          prompt.style.display = 'none';
+        }
+      }
+
+      showAutoPlayPrompt() {
+        // Add pulse animation to play button to draw attention
+        this.playPauseBtn.classList.add('pulse');
+        
+        // Show a subtle prompt to encourage user interaction
+        const prompt = document.createElement('div');
+        prompt.className = 'auto-play-prompt';
+        prompt.innerHTML = '🎵 Nhấn nút nhạc để phát nhạc nền';
+        prompt.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(0, 0, 0, 0.9);
+          color: white;
+          padding: 20px 30px;
+          border-radius: 25px;
+          font-size: 14px;
+          text-align: center;
+          z-index: 10000;
+          animation: fadeInOut 4s ease-in-out;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        `;
+        
+        // Add CSS animation
+        if (!document.querySelector('#auto-play-styles')) {
+          const style = document.createElement('style');
+          style.id = 'auto-play-styles';
+          style.textContent = `
+            @keyframes fadeInOut {
+              0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+              20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+              80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+              100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(prompt);
+        
+        // Remove prompt and pulse animation after animation
+        setTimeout(() => {
+          if (prompt.parentNode) {
+            prompt.parentNode.removeChild(prompt);
+          }
+          this.playPauseBtn.classList.remove('pulse');
+        }, 3000);
+      }
+
+      togglePlayPause() {
+        if (this.isPlaying) {
+          this.audio.pause();
+        } else {
+          this.audio.play().catch(error => {
+            console.error('Play failed:', error);
+          });
+        }
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.audio.muted = this.isMuted;
+        this.updateMuteButton();
+      }
+
+      updatePlayButton(playing) {
+        this.isPlaying = playing;
+        this.playPauseBtn.textContent = playing ? '⏸️' : '🎵';
+      }
+
+      updateMuteButton() {
+        this.isMuted = this.audio.muted;
+        this.muteBtn.textContent = this.isMuted ? '🔇' : '🔊';
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       new BookFlip();
+      new AudioController();
     });
   </script>
 </body>
