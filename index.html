@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quyển Sách Hình Ảnh</title>
+  <title>Gia Hân</title>
   <style>
     * {
       margin: 0;
@@ -512,6 +512,7 @@
       }
 
       nextSpread() {
+        if (this.pageMapping[this.currentSpread].right === null) return;
         if (this.currentSpread >= this.totalSpreads || this.isAnimating) return;
         
         this.isAnimating = true;
