@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parkway - We Are One</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .desk {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .desk::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+    }
+
+    .instructions {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 14px;
+      color: #2c3e50;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .book-container {
+      position: relative;
+      width: 700px;
+      height: 500px;
+      perspective: 1200px;
+      transform: rotateX(15deg) rotateY(-5deg);
+    }
+
+    .page.flipping::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.2), transparent);
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .book-container {
+        width: 90vw;
+        height: 60vh;
+        max-width: 400px;
+        max-height: 600px;
+        transform: rotateX(10deg) rotateY(-2deg);
+        perspective: 800px;
+      }
+
+      .instructions {
+        top: 20px;
+        padding: 8px 16px;
+        font-size: 12px;
+        max-width: 90%;
+        text-align: center;
+      }
+
+      .book-title {
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+
+      .book-subtitle {
+        font-size: 12px;
+      }
+
+      .page-number {
+        bottom: 15px;
+        right: 15px;
+        padding: 3px 6px;
+        font-size: 10px;
+      }
+
+      .book-spine {
+        width: 4px;
+      }
+
+      .page {
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .book-container {
+        width: 95vw;
+        height: 285px;
+        transform: rotateX(5deg) rotateY(-1deg);
+        perspective: 600px;
+      }
+
+      .instructions {
+        top: 15px;
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+
+      .book-title {
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+
+      .book-subtitle {
+        font-size: 11px;
+      }
+
+      .page-number {
+        bottom: 10px;
+        right: 10px;
+        padding: 2px 5px;
+        font-size: 9px;
+      }
+
+      .book-spine {
+        width: 3px;
+      }
+    }
+
+    .book {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      display: flex;
+    }
+
+    .page-spread {
+      position: relative;
+      width: 50%;
+      height: 100%;
+    }
+
+    .page {
+      position: absolute;
+      inset: 0;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 
+        0 0 0 1px rgba(0,0,0,0.1),
+        0 5px 15px rgba(0, 0, 0, 0.2);
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                  opacity 0.3s ease, 
+                  visibility 0.3s ease;
+      cursor: grab;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-drag: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    .page:active {
+      cursor: grabbing;
+    }
+
+    .page.left-page {
+      border-radius: 5px 0 0 5px;
+      transform-origin: right center;
+    }
+
+    .page.right-page {
+      border-radius: 0 5px 5px 0;
+      transform-origin: left center;
+    }
+
+    .page img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      .page img {
+        object-fit: contain;
+        background: #f8f9fa;
+      }
+    }
+
+    .page-number {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .cover-front,
+    .cover-back {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .cover-front::before,
+    .cover-back::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+    }
+
+    .cover-back::before {
+      background: 
+        radial-gradient(circle at 70% 70%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+    }
+
+    .book-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      z-index: 1;
+    }
+
+    .book-subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+      z-index: 1;
+    }
+
+    .book-spine {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(90deg, #1a252f 0%, #2c3e50 100%);
+      border-radius: 5px 0 0 5px;
+    }
+
+    .page.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .page.visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .page.flipping {
+      transform: rotateY(-180deg);
+    }
+
+    .page.flipping-reverse {
+      transform: rotateY(180deg);
+    }
+
+    .page.left-page.flipping-reverse {
+      transform: rotateY(-180deg) translateZ(10px);
+      z-index: 10;
+    }
+
+    .flip-indicator {
+      display: none;
+    }
+
+    .audio-controls {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .audio-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .audio-btn:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: scale(1.1);
+    }
+
+    .audio-btn:active {
+      transform: scale(0.95);
+    }
+
+    .audio-btn.pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 768px) {
+      .audio-controls {
+        top: 20px;
+        right: 20px;
+      }
+
+      .audio-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="desk">
+    <div class="instructions">
+      📖 Kéo từ phải sang trái để lật trang tiếp theo<br>
+      🎵 Nhạc nền đang phát tự động
+    </div>
+    
+    <!-- Audio Controls -->
+    <div class="audio-controls">
+      <button id="playPauseBtn" class="audio-btn">🎵</button>
+      <button id="muteBtn" class="audio-btn">🔊</button>
+    </div>
+    
+    <div class="book-container">
+      <div class="book" id="book">
+        <!-- Left Pages -->
+        <div class="page-spread">
+          <div class="page left-page hidden" id="leftPage-back">
+            <img src="./images/6.jpg" alt="Hình ảnh 6">
+            <div class="page-number">Hết</div>
+          </div>
+          
+          <div class="page left-page hidden" id="leftPage-2">
+            <img src="./images/parkway-2.jpg" alt="Hình ảnh 2">
+            <div class="page-number">2</div>
+          </div>
+        </div>
+
+        <!-- Right Pages -->
+        <div class="page-spread">
+          <div class="page right-page visible" id="rightPage-cover">
+            <img src="./images/parkway-1.jpg" alt="Hình ảnh 1">
+            <div class="page-number">Bắt đầu</div>
+          </div>
+          
+          <div class="page right-page hidden" id="rightPage-3">
+            <img src="./images/parkway-3.jpg" alt="Hình ảnh 3">
+            <div class="page-number">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Element -->
+  <audio id="backgroundMusic" loop autoplay preload="auto" muted>
+    <source src="noi-nay-co-anh.mp3" type="audio/mpeg">
+    Trình duyệt của bạn không hỗ trợ phát âm thanh.
+  </audio>
+
+  <script>
+    class BookFlip {
+      constructor() {
+        this.currentSpread = 0;
+        this.totalSpreads = 4;
+        this.isAnimating = false;
+        this.dragThreshold = window.innerWidth <= 768 ? 30 : 50;
+        this.animationDuration = 400;
+        this.isMobile = window.innerWidth <= 768;
+        
+        this.pageMapping = {
+          0: { left: null, right: 'rightPage-cover' },
+          1: { left: 'leftPage-2', right: 'rightPage-3' },
+          2: { left: 'leftPage-back', right: null }
+        };
+        
+        this.init();
+      }
+
+      init() {
+        this.setupEventListeners();
+        this.updatePages();
+      }
+
+      setupEventListeners() {
+        document.addEventListener('mousedown', this.handleStart.bind(this));
+        document.addEventListener('mousemove', this.handleMove.bind(this));
+        document.addEventListener('mouseup', this.handleEnd.bind(this));
+        
+        document.addEventListener('touchstart', this.handleStart.bind(this));
+        document.addEventListener('touchmove', this.handleMove.bind(this));
+        document.addEventListener('touchend', this.handleEnd.bind(this));
+        
+        document.addEventListener('keydown', this.handleKeydown.bind(this));
+      }
+
+      handleStart(e) {
+        if (this.isAnimating) return;
+        
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        this.dragStartX = clientX;
+        this.isDragging = true;
+        
+        if (e.type.includes('touch')) {
+          e.preventDefault();
+        }
+        
+        if (this.isMobile) {
+          document.body.style.userSelect = 'none';
+        }
+      }
+
+      handleMove(e) {
+        if (!this.isDragging) return;
+        
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const deltaX = clientX - this.dragStartX;
+        
+        if (Math.abs(deltaX) > this.dragThreshold) {
+          if (deltaX < -this.dragThreshold && this.currentSpread < this.totalSpreads) {
+            this.nextSpread();
+          } else if (deltaX > this.dragThreshold && this.currentSpread > 0) {
+            this.prevSpread();
+          }
+          this.isDragging = false;
+        }
+        
+        if (e.type.includes('touch')) {
+          e.preventDefault();
+        }
+      }
+
+      handleEnd() {
+        this.isDragging = false;
+        
+        if (this.isMobile) {
+          document.body.style.userSelect = '';
+        }
+      }
+
+      handleKeydown(e) {
+        if (e.key === 'ArrowRight') this.nextSpread();
+        if (e.key === 'ArrowLeft') this.prevSpread();
+      }
+
+      nextSpread() {
+        if (this.pageMapping[this.currentSpread].right === null) return;
+        if (this.currentSpread >= this.totalSpreads || this.isAnimating) return;
+        
+        this.isAnimating = true;
+        this.currentSpread++;
+        
+        const rightPage = document.querySelector('.page-spread:last-child .page.visible');
+        if (rightPage) {
+          rightPage.classList.add('flipping');
+        }
+        
+        setTimeout(() => {
+          this.updatePages();
+          if (rightPage) {
+            rightPage.classList.remove('flipping');
+          }
+          this.isAnimating = false;
+        }, this.animationDuration);
+      }
+
+      prevSpread() {
+        if (this.currentSpread <= 0 || this.isAnimating) return;
+        
+        this.isAnimating = true;
+        this.currentSpread--;
+        
+        const leftPage = document.querySelector('.page-spread:first-child .page.visible');
+        if (leftPage) {
+          leftPage.classList.add('flipping-reverse');
+        }
+        
+        setTimeout(() => {
+          this.updatePages();
+          if (leftPage) {
+            leftPage.classList.remove('flipping-reverse');
+          }
+          this.isAnimating = false;
+        }, this.animationDuration);
+      }
+
+      updatePages() {
+        const spread = this.pageMapping[this.currentSpread];
+        
+        document.querySelectorAll('.page').forEach(page => {
+          page.className = page.className.replace(/visible|hidden/, 'hidden');
+        });
+        
+        if (spread.left) {
+          const leftPage = document.getElementById(spread.left);
+          if (leftPage) {
+            leftPage.className = leftPage.className.replace('hidden', 'visible');
+          }
+        }
+        
+        if (spread.right) {
+          const rightPage = document.getElementById(spread.right);
+          if (rightPage) {
+            rightPage.className = rightPage.className.replace('hidden', 'visible');
+          }
+        }
+      }
+    }
+
+    // Audio Controller
+    class AudioController {
+      constructor() {
+        this.audio = document.getElementById('backgroundMusic');
+        this.playPauseBtn = document.getElementById('playPauseBtn');
+        this.muteBtn = document.getElementById('muteBtn');
+        this.isPlaying = false;
+        this.isMuted = false;
+        this.autoPlayAttempted = false;
+        
+        this.init();
+      }
+
+      init() {
+        this.setupEventListeners();
+        this.setupAudio();
+        this.attemptAutoPlay();
+      }
+
+      setupAudio() {
+        // Set volume to a reasonable level
+        this.audio.volume = 0.7;
+        
+        // Listen for audio events
+        this.audio.addEventListener('play', () => this.updatePlayButton(true));
+        this.audio.addEventListener('pause', () => this.updatePlayButton(false));
+        this.audio.addEventListener('volumechange', () => this.updateMuteButton());
+        this.audio.addEventListener('canplaythrough', () => this.tryUnmuteOnReady());
+        this.audio.addEventListener('loadeddata', () => this.tryUnmuteOnReady());
+        this.audio.addEventListener('error', (e) => console.error('Audio error:', e));
+      }
+
+      setupEventListeners() {
+        this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+        this.muteBtn.addEventListener('click', () => this.toggleMute());
+        
+        // Try to enable audio on any user interaction
+        this.setupUserInteractionAutoPlay();
+      }
+
+      attemptAutoPlay() {
+        if (this.autoPlayAttempted) return;
+        this.autoPlayAttempted = true;
+        
+        // Try to play audio automatically
+        this.tryAutoPlay();
+      }
+
+      tryAutoPlay() {
+        // Strategy 1: Try muted autoplay first
+        const playPromise = this.audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            this.isPlaying = true;
+            this.updatePlayButton(true);
+            
+            // Try to unmute immediately and then with delays
+            this.tryUnmuteOnReady();
+            setTimeout(() => this.tryUnmute(), 500);
+            setTimeout(() => this.tryUnmute(), 1500);
+            setTimeout(() => this.tryUnmute(), 3000);
+            
+          }).catch(error => {
+            // Strategy 2: Try to play without muted after a delay
+            setTimeout(() => this.tryDirectPlay(), 1000);
+            this.showAutoPlayPrompt();
+          });
+        } else {
+          this.tryDirectPlay();
+        }
+      }
+
+      tryDirectPlay() {
+        this.audio.muted = false;
+        this.audio.play().then(() => {
+          this.isPlaying = true;
+          this.updatePlayButton(true);
+          this.updateMuteButton();
+        }).catch(error => {
+          this.showAutoPlayPrompt();
+        });
+      }
+
+      tryUnmuteOnReady() {
+        // Try to unmute immediately when audio is ready
+        if (this.isPlaying && this.audio.muted) {
+          this.audio.muted = false;
+          this.updateMuteButton();
+        }
+      }
+
+      tryUnmute() {
+        // Try to unmute the audio
+        this.audio.muted = false;
+        this.updateMuteButton();
+        
+        // If unmuting worked, show success
+        if (!this.audio.muted) {
+          this.showAutoPlaySuccess();
+        } else {
+          // If still muted, show prompt for user interaction
+          this.showAutoPlayPrompt();
+        }
+      }
+
+      setupUserInteractionAutoPlay() {
+        // Try to enable audio on any user interaction
+        const enableAudio = () => {
+          if (this.isPlaying && this.audio.muted) {
+            // If audio is playing but muted, try to unmute
+            this.audio.muted = false;
+            this.updateMuteButton();
+            this.showAutoPlaySuccess();
+          } else if (!this.isPlaying) {
+            // If not playing yet, try to start
+            this.audio.muted = false; // Try unmuted play
+            this.audio.play().then(() => {
+              this.isPlaying = true;
+              this.updatePlayButton(true);
+              this.updateMuteButton();
+              this.showAutoPlaySuccess();
+            }).catch(error => {
+              // Silent fail
+            });
+          }
+        };
+
+        // Listen for various user interactions with immediate response
+        document.addEventListener('click', enableAudio, { once: true });
+        document.addEventListener('touchstart', enableAudio, { once: true });
+        document.addEventListener('keydown', enableAudio, { once: true });
+        document.addEventListener('mousemove', enableAudio, { once: true });
+        document.addEventListener('mousedown', enableAudio, { once: true });
+        document.addEventListener('scroll', enableAudio, { once: true });
+      }
+
+      showAutoPlaySuccess() {
+        // Hide any prompts since auto-play worked
+        const prompt = document.querySelector('.auto-play-prompt');
+        if (prompt) {
+          prompt.style.display = 'none';
+        }
+      }
+
+      showAutoPlayPrompt() {
+        // Add pulse animation to play button to draw attention
+        this.playPauseBtn.classList.add('pulse');
+        
+        // Show a subtle prompt to encourage user interaction
+        const prompt = document.createElement('div');
+        prompt.className = 'auto-play-prompt';
+        prompt.innerHTML = '🎵 Nhấn nút nhạc để phát nhạc nền';
+        prompt.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(0, 0, 0, 0.9);
+          color: white;
+          padding: 20px 30px;
+          border-radius: 25px;
+          font-size: 14px;
+          text-align: center;
+          z-index: 10000;
+          animation: fadeInOut 4s ease-in-out;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        `;
+        
+        // Add CSS animation
+        if (!document.querySelector('#auto-play-styles')) {
+          const style = document.createElement('style');
+          style.id = 'auto-play-styles';
+          style.textContent = `
+            @keyframes fadeInOut {
+              0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+              20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+              80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+              100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(prompt);
+        
+        // Remove prompt and pulse animation after animation
+        setTimeout(() => {
+          if (prompt.parentNode) {
+            prompt.parentNode.removeChild(prompt);
+          }
+          this.playPauseBtn.classList.remove('pulse');
+        }, 3000);
+      }
+
+      togglePlayPause() {
+        if (this.isPlaying) {
+          this.audio.pause();
+        } else {
+          this.audio.play().catch(error => {
+            console.error('Play failed:', error);
+          });
+        }
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.audio.muted = this.isMuted;
+        this.updateMuteButton();
+      }
+
+      updatePlayButton(playing) {
+        this.isPlaying = playing;
+        this.playPauseBtn.textContent = playing ? '⏸️' : '🎵';
+      }
+
+      updateMuteButton() {
+        this.isMuted = this.audio.muted;
+        this.muteBtn.textContent = this.isMuted ? '🔇' : '🔊';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new BookFlip();
+      new AudioController();
+    });
+  </script>
+</body>
+</html>
